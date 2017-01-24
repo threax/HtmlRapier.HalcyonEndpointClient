@@ -1,0 +1,12 @@
+{
+  "name": "htmlrapier.halcyon",
+  "version": "1.0.0",
+  "private": false,
+  "types": "./types/fetch.d.ts",
+  "dependencies": {
+    "htmlrapier": "^3.1.1"
+  },
+  "devDependencies": {
+    "threax-gulp-tk": "^2.0.0"
+  }
+}
