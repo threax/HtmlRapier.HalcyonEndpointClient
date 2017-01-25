@@ -1,12 +1,11 @@
 {
   "name": "htmlrapier.halcyon",
-  "version": "1.0.0",
+  "version": "3.2.0",
   "private": false,
-  "types": "./types/fetch.d.ts",
   "dependencies": {
-    "htmlrapier": "^3.1.1"
+    "htmlrapier": "^3.2.0"
   },
   "devDependencies": {
-    "threax-gulp-tk": "^2.0.0"
+    "threax-gulp-tk": "^4.0.0"
   }
 }

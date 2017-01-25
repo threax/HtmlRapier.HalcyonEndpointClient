@@ -1,4 +1,4 @@
-﻿import { Fetcher } from 'hr.fetcher';
+﻿import { Fetcher, Response } from 'hr.fetcher';
 import { ValidationError } from 'hr.error';
 import { Uri } from 'hr.uri';
 
