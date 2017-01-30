@@ -107,7 +107,7 @@ export class HalError implements ValidationError {
  * from the data, so if you get it it won't contain that info.
  */
 export class HalEndpointClient {
-    private static jsonMimeType = "application/json";
+    private static jsonMimeType = "application/json+halcyon";
 
     /**
      * Load a hal link from an endpoint.
@@ -124,7 +124,7 @@ export class HalEndpointClient {
             method: link.method,
             body: body,
             headers: {
-                "Content-Type": "application/json; charset=UTF-8",
+                "Accept": HalEndpointClient.jsonMimeType,
                 "bearer": null //temp to get the bearer token added automatically
             }
         })
