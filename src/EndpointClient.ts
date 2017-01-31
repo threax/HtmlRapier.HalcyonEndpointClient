@@ -156,11 +156,24 @@ export class HalEndpointClient {
         var result: HalData;
         var contentHeader = response.headers.get('content-type');
         if (!contentHeader) {
-            result = <any>{};
+            throw new Error("Missing content-type in response header. Cannot parse result.");
         }
-        else if (contentHeader.length >= HalEndpointClient.halcyonJsonMimeType.length
-            && contentHeader.substring(0, HalEndpointClient.halcyonJsonMimeType.length) === HalEndpointClient.halcyonJsonMimeType) {
+        else if (
+            ( //The content type is json+halcyon
+                contentHeader.length >= HalEndpointClient.halcyonJsonMimeType.length
+                && contentHeader.substring(0, HalEndpointClient.halcyonJsonMimeType.length) === HalEndpointClient.halcyonJsonMimeType
+            )
+            ||
+            ( //The content type is json, only accepted in the event of an error
+                contentHeader.length >= HalEndpointClient.jsonMimeType.length
+                && contentHeader.substring(0, HalEndpointClient.jsonMimeType.length) === HalEndpointClient.jsonMimeType
+                && !response.ok)
+            ) {
             result = data === "" ? null : JSON.parse(data, jsonParseReviver);
+        }
+        else if (!response.ok) {
+            //If this is an error and we couldn't parse it
+            throw new Error("Generic server error with status " + response.status + " " + response.statusText + " returned.");
         }
         else {
             throw new Error("Unsupported response type " + contentHeader + ".");
