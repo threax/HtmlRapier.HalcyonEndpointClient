@@ -107,7 +107,8 @@ export class HalError implements ValidationError {
  * from the data, so if you get it it won't contain that info.
  */
 export class HalEndpointClient {
-    private static jsonMimeType = "application/json+halcyon";
+    private static halcyonJsonMimeType = "application/json+halcyon";
+    private static jsonMimeType = "application/json";
 
     /**
      * Load a hal link from an endpoint.
@@ -117,16 +118,18 @@ export class HalEndpointClient {
      */
     public static Load(link: HalLink, fetcher: Fetcher, reqBody?: any): Promise<HalEndpointClient> {
         var body;
+        var headers = {
+            "Accept": HalEndpointClient.halcyonJsonMimeType,
+            "bearer": null //temp to get the bearer token added automatically
+        };
         if (reqBody !== undefined) {
             body = JSON.stringify(reqBody);
+            headers["Content-Type"] = HalEndpointClient.jsonMimeType;
         }
         return fetcher.fetch(link.href, {
             method: link.method,
             body: body,
-            headers: {
-                "Accept": HalEndpointClient.jsonMimeType,
-                "bearer": null //temp to get the bearer token added automatically
-            }
+            headers: headers
         })
             .then(r => HalEndpointClient.processResult(r, fetcher));
     }
@@ -155,8 +158,8 @@ export class HalEndpointClient {
         if (!contentHeader) {
             result = <any>{};
         }
-        else if (contentHeader.length >= HalEndpointClient.jsonMimeType.length
-            && contentHeader.substring(0, HalEndpointClient.jsonMimeType.length) === HalEndpointClient.jsonMimeType) {
+        else if (contentHeader.length >= HalEndpointClient.halcyonJsonMimeType.length
+            && contentHeader.substring(0, HalEndpointClient.halcyonJsonMimeType.length) === HalEndpointClient.halcyonJsonMimeType) {
             result = data === "" ? null : JSON.parse(data, jsonParseReviver);
         }
         else {
