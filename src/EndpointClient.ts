@@ -30,6 +30,15 @@ export interface HalLinkInfo {
     rel: string
 }
 
+/**
+ * Documentation object for a hal link. Can be reused for any documentation lookup.
+ */
+export interface HalEndpointDoc {
+    requestSchema: any,
+    responseSchema: any,
+    querySchema: any,
+}
+
 export class Embed {
     private name: string;
     private embeds: HalData[];
