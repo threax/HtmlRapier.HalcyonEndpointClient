@@ -202,9 +202,7 @@ export class HalEndpointClient {
      */
     constructor(data: HalData, fetcher: Fetcher) {
         this.embeds = data._embedded;
-        delete data._embedded;
         this.links = data._links;
-        delete data._links;
         this.data = <any>data; //HalData is the actual data, trick compiler
         this.fetcher = fetcher;
     }
