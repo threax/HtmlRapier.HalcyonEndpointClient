@@ -6,7 +6,7 @@ import * as typeId from 'hr.typeidentifiers';
 /**
  * This interface matches the auto generated client code for halcyon results.
  */
-interface HypermediaResult<T> {
+export interface HypermediaResult<T> {
     data: T;
 }
 
@@ -16,7 +16,7 @@ interface HypermediaResult<T> {
  * constructor as the item data and the callback functions. Wrap your real model inside
  * this class to use it. Getting data will get the data back out as the DataType specified.
  */
-class ResultModel<DataType, ResultType extends HypermediaResult<DataType>> {
+export class ResultModel<DataType, ResultType extends HypermediaResult<DataType>> {
     constructor(private model: models.Model<DataType>) {
 
     }
