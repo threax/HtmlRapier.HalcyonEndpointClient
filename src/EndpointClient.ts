@@ -39,6 +39,21 @@ export interface HalEndpointDoc {
     querySchema: any,
 }
 
+/**
+ * File information for uploads. All files are uploaded with the name "files"
+ */
+export interface FileInfo {
+    /**
+     * The file name to claim for the file
+     */
+    fileName: string,
+
+    /**
+     * The actual file content as a blob.
+     */
+    data: Blob
+}
+
 export class Embed {
     private name: string;
     private embeds: HalData[];
@@ -125,19 +140,17 @@ export class HalEndpointClient {
      * @param {Fetcher} fetcher - The fetcher to use to load the link
      * @returns A HalEndpointClient for the link.
      */
-    public static Load(link: HalLink, fetcher: Fetcher, reqBody?: any): Promise<HalEndpointClient> {
-        var body;
+    public static Load(link: HalLink, fetcher: Fetcher, reqBody?: any, contentType?: string): Promise<HalEndpointClient> {
         var headers = {
             "Accept": HalEndpointClient.halcyonJsonMimeType,
             "bearer": null //temp to get the bearer token added automatically
         };
-        if (reqBody !== undefined) {
-            body = JSON.stringify(reqBody);
+        if (contentType !== undefined) {
             headers["Content-Type"] = HalEndpointClient.jsonMimeType;
         }
         return fetcher.fetch(link.href, {
             method: link.method,
-            body: body,
+            body: reqBody,
             headers: headers
         })
             .then(r => HalEndpointClient.processResult(r, fetcher));
@@ -278,11 +291,60 @@ export class HalEndpointClient {
      */
     public LoadLinkWithBody<BodyType>(ref: string, data: BodyType): Promise<HalEndpointClient> {
         if (this.HasLink(ref)) {
-            return HalEndpointClient.Load(this.GetLink(ref), this.fetcher, data);
+            return HalEndpointClient.Load(this.GetLink(ref), this.fetcher, JSON.stringify(data), HalEndpointClient.jsonMimeType);
         }
         else {
             throw new Error('Cannot find ref "' + ref + '".');
         }
+    }
+
+    /**
+     * Load a new link with files to upload.
+     * @param ref - The link reference to visit.
+     * @param file - The file to upload, either a single file or an array of multiple files.
+     * @returns
+     */
+    public LoadLinkWithFile(ref: string, file: FileInfo | FileInfo[]): Promise<HalEndpointClient> {
+        if (this.HasLink(ref)) {
+            return this.loadFileLink(file, this.GetLink(ref));
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    /**
+     * Load a new link with files to upload and a query string.
+     * @param ref - The link reference to visit.
+     * @param file - The file to upload, either a single file or an array of multiple files.
+     * @param query - The query object.
+     * @returns
+     */
+    public LoadLinkWithQueryAndFile<QueryType>(ref: string, query: QueryType, file: FileInfo | FileInfo[]): Promise<HalEndpointClient> {
+        if (this.HasLink(ref)) {
+            return this.loadFileLink(file, this.GetQueryLink(this.GetLink(ref), query));
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    /**
+     * Helper function to acutally do the request for multiple files.
+     * @param file The file(s) to uplaod.
+     * @param link The link to load.
+     */
+    private loadFileLink(file: FileInfo | FileInfo[], link: HalLink): Promise<HalEndpointClient> {
+        if (!Array.isArray(file)) {
+            file = [file];
+        }
+
+        var body = new FormData();
+        for (var i = 0; i < file.length; ++i) {
+            var f = file[i];
+            body.append("files", f.data, f.fileName);
+        }
+        return HalEndpointClient.Load(link, this.fetcher, body, HalEndpointClient.jsonMimeType);
     }
 
     /**
@@ -309,7 +371,7 @@ export class HalEndpointClient {
      */
     public LoadLinkWithQueryAndBody<QueryType, BodyType>(ref: string, query: QueryType, data: BodyType): Promise<HalEndpointClient> {
         if (this.HasLink(ref)) {
-            return HalEndpointClient.Load(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, data);
+            return HalEndpointClient.Load(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, JSON.stringify(data), HalEndpointClient.jsonMimeType);
         }
         else {
             throw new Error('Cannot find ref "' + ref + '".');
