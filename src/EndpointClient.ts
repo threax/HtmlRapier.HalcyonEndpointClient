@@ -146,7 +146,7 @@ export class HalEndpointClient {
             "bearer": null //temp to get the bearer token added automatically
         };
         if (contentType !== undefined) {
-            headers["Content-Type"] = HalEndpointClient.jsonMimeType;
+            headers["Content-Type"] = contentType;
         }
         return fetcher.fetch(link.href, {
             method: link.method,
@@ -304,9 +304,10 @@ export class HalEndpointClient {
      * @param file - The file to upload, either a single file or an array of multiple files.
      * @returns
      */
-    public LoadLinkWithFile(ref: string, file: FileInfo | FileInfo[]): Promise<HalEndpointClient> {
+    public LoadLinkWithForm<FormType>(ref: string, data: FormType): Promise<HalEndpointClient> {
         if (this.HasLink(ref)) {
-            return this.loadFileLink(file, this.GetLink(ref));
+            var body = this.jsonToFormData(data);
+            return HalEndpointClient.Load(this.GetLink(ref), this.fetcher, body);
         }
         else {
             throw new Error('Cannot find ref "' + ref + '".');
@@ -320,31 +321,40 @@ export class HalEndpointClient {
      * @param query - The query object.
      * @returns
      */
-    public LoadLinkWithQueryAndFile<QueryType>(ref: string, query: QueryType, file: FileInfo | FileInfo[]): Promise<HalEndpointClient> {
+    public LoadLinkWithQueryAndForm<QueryType, FormType>(ref: string, query: QueryType, data: FormType): Promise<HalEndpointClient> {
         if (this.HasLink(ref)) {
-            return this.loadFileLink(file, this.GetQueryLink(this.GetLink(ref), query));
+            var body = this.jsonToFormData(data);
+            return HalEndpointClient.Load(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, body);
         }
         else {
             throw new Error('Cannot find ref "' + ref + '".');
         }
     }
 
-    /**
-     * Helper function to acutally do the request for multiple files.
-     * @param file The file(s) to uplaod.
-     * @param link The link to load.
-     */
-    private loadFileLink(file: FileInfo | FileInfo[], link: HalLink): Promise<HalEndpointClient> {
-        if (!Array.isArray(file)) {
-            file = [file];
-        }
+    //Thanks Raj Pawan Gumdal at
+    //https://stackoverflow.com/questions/22783108/convert-js-object-to-form-data
+    //Removed the test json bit
+    private jsonToFormData<T>(inJSON: T, inFormData?: FormData, parentKey?: string) {
+        // http://stackoverflow.com/a/22783314/260665
+        // Raj: Converts any nested JSON to formData.
+        var form_data: FormData = inFormData || new FormData();
+        for (var key in inJSON) {
+            // 1. If it is a recursion, then key has to be constructed like "parent.child" where parent JSON contains a child JSON
+            // 2. Perform append data only if the value for key is not a JSON, recurse otherwise!
+            var constructedKey: string = key;
+            if (parentKey) {
+                constructedKey = parentKey + "." + key;
+            }
 
-        var body = new FormData();
-        for (var i = 0; i < file.length; ++i) {
-            var f = file[i];
-            body.append("files", f.data, f.fileName);
+            var value = inJSON[key];
+            if (value && value.constructor === {}.constructor) {
+                // This is a JSON, we now need to recurse!
+                this.jsonToFormData(value, form_data, constructedKey);
+            } else {
+                form_data.append(constructedKey, <any>value);
+            }
         }
-        return HalEndpointClient.Load(link, this.fetcher, body, HalEndpointClient.jsonMimeType);
+        return form_data;
     }
 
     /**
