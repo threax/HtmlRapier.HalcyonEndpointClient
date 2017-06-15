@@ -133,6 +133,17 @@ export interface LoadOptions {
 }
 
 /**
+ * This is a helper function that will make calling it in a then block
+ * change the promise type to void and hides the original promise's retur
+ * value. Since this is only a single instance, sharing it is slightly more
+ * efficient if you are using the hal library already.
+ * You can call this function if you want, it does nothing.
+ */
+export function makeVoid(): void{
+
+}
+
+/**
  * This class represents a single visit to a hal api endpoint. It will contain the data
  * that was requested and the links from that data. The hal properties are removed
  * from the data, so if you get it it won't contain that info.
