@@ -2,6 +2,8 @@
 import { ValidationError } from 'hr.error';
 import { Uri } from 'hr.uri';
 
+export { Fetcher, Response };
+
 /**
  * This interface strongly types the hal endpoint data.
  * @param {any} links
