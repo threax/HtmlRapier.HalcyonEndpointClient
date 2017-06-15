@@ -277,6 +277,8 @@ export class HalEndpointClient {
         return embeds;
     }
 
+    //Hal Type Links
+
     /**
      * Load a new link, this will return a new HalEndpointClient for the results
      * of that request. You can keep using the client that you called this function
@@ -376,6 +378,116 @@ export class HalEndpointClient {
     public LoadLinkWithQueryAndForm<QueryType, FormType>(ref: string, query: QueryType, data: FormType): Promise<HalEndpointClient> {
         if (this.HasLink(ref)) {
             return HalEndpointClient.Load(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, {
+                reqBody: this.jsonToFormData(data)
+            });
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    //Raw Links
+
+
+    /**
+     * Load a new link, this will return a new HalEndpointClient for the results
+     * of that request. You can keep using the client that you called this function
+     * on to keep making requests if needed. The ref must exist before you can call
+     * this function. Use HasLink to see if it is possible.
+     * @param {string} ref - The link reference to visit.
+     * @returns
+     */
+    public LoadRawLink(ref: string): Promise<Response> {
+        if (this.HasLink(ref)) {
+            return HalEndpointClient.LoadRaw(this.GetLink(ref), this.fetcher);
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    /**
+     * Load a link that uses a template query. The template args are provided by the query argument.
+     * @param {string} ref The ref for the link
+     * @param {type} query The object with the template values inside.
+     * @returns
+     */
+    public LoadRawLinkWithQuery<QueryType>(ref: string, query: QueryType): Promise<Response> {
+        if (this.HasLink(ref)) {
+            return HalEndpointClient.LoadRaw(this.GetQueryLink(this.GetLink(ref), query), this.fetcher);
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    /**
+     * Load a new link, this will return a new HalEndpointClient for the results
+     * of that request. You can keep using the client that you called this function
+     * on to keep making requests if needed. The ref must exist before you can call
+     * this function. Use HasLink to see if it is possible.
+     * @param {string} ref - The link reference to visit.
+     * @param {type} data - The data to send as the body of the request
+     * @returns
+     */
+    public LoadRawLinkWithBody<BodyType>(ref: string, data: BodyType): Promise<Response> {
+        if (this.HasLink(ref)) {
+            return HalEndpointClient.LoadRaw(this.GetLink(ref), this.fetcher, {
+                reqBody: JSON.stringify(data),
+                contentType: HalEndpointClient.jsonMimeType
+            });
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    /**
+     * Load a link that uses a templated query and has body data. The template args are provided by the query argument.
+     * @param {string} ref The ref for the link
+     * @param {type} query The object with the template values inside.
+     * @param {type} data - The data to send as the body of the request
+     * @returns
+     */
+    public LoadRawLinkWithQueryAndBody<QueryType, BodyType>(ref: string, query: QueryType, data: BodyType): Promise<Response> {
+        if (this.HasLink(ref)) {
+            return HalEndpointClient.LoadRaw(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, {
+                reqBody: JSON.stringify(data),
+                contentType: HalEndpointClient.jsonMimeType
+            });
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    /**
+     * Load a new link with files to upload.
+     * @param ref - The link reference to visit.
+     * @param file - The file to upload, either a single file or an array of multiple files.
+     * @returns
+     */
+    public LoadRawLinkWithForm<FormType>(ref: string, data: FormType): Promise<Response> {
+        if (this.HasLink(ref)) {
+            return HalEndpointClient.LoadRaw(this.GetLink(ref), this.fetcher, {
+                reqBody: this.jsonToFormData(data)
+            });
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    /**
+     * Load a new link with files to upload and a query string.
+     * @param ref - The link reference to visit.
+     * @param file - The file to upload, either a single file or an array of multiple files.
+     * @param query - The query object.
+     * @returns
+     */
+    public LoadRawLinkWithQueryAndForm<QueryType, FormType>(ref: string, query: QueryType, data: FormType): Promise<Response> {
+        if (this.HasLink(ref)) {
+            return HalEndpointClient.LoadRaw(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, {
                 reqBody: this.jsonToFormData(data)
             });
         }
