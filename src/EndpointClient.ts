@@ -125,6 +125,11 @@ export class HalError implements ValidationError {
     }
 }
 
+export interface LoadOptions {
+    reqBody?: any;
+    contentType?: string;
+}
+
 /**
  * This class represents a single visit to a hal api endpoint. It will contain the data
  * that was requested and the links from that data. The hal properties are removed
@@ -136,24 +141,33 @@ export class HalEndpointClient {
 
     /**
      * Load a hal link from an endpoint.
-     * @param {HalLink} link - The link to load
-     * @param {Fetcher} fetcher - The fetcher to use to load the link
+     * @param link - The link to load
+     * @param fetcher - The fetcher to use to load the link
+     * @param options - Additional request options
      * @returns A HalEndpointClient for the link.
      */
-    public static Load(link: HalLink, fetcher: Fetcher, reqBody?: any, contentType?: string): Promise<HalEndpointClient> {
+    public static Load(link: HalLink, fetcher: Fetcher, options?: LoadOptions): Promise<HalEndpointClient> {
+        options = options || {};
+
+        return HalEndpointClient.LoadRaw(link, fetcher, options)
+               .then(r => HalEndpointClient.processResult(r, fetcher));
+    }
+
+    private static LoadRaw(link: HalLink, fetcher: Fetcher, options?: LoadOptions): Promise<Response> {
+        options = options || {};
+
         var headers = {
             "Accept": HalEndpointClient.halcyonJsonMimeType,
             "bearer": null //temp to get the bearer token added automatically
         };
-        if (contentType !== undefined) {
-            headers["Content-Type"] = contentType;
+        if (options.contentType !== undefined) {
+            headers["Content-Type"] = options.contentType;
         }
         return fetcher.fetch(link.href, {
             method: link.method,
-            body: reqBody,
+            body: options.reqBody,
             headers: headers
-        })
-            .then(r => HalEndpointClient.processResult(r, fetcher));
+        });
     }
 
     private static processResult(response: Response, fetcher: Fetcher): Promise<HalEndpointClient> {
@@ -175,7 +189,7 @@ export class HalEndpointClient {
     }
 
     private static parseResult(response: Response, data: string, jsonParseReviver?: (key: string, value: any) => any): HalData {
-        var result: HalData;;
+        var result: HalData;
         var contentHeader = response.headers.get('content-type');
         if (contentHeader) {
             if (
@@ -281,6 +295,21 @@ export class HalEndpointClient {
     }
 
     /**
+     * Load a link that uses a template query. The template args are provided by the query argument.
+     * @param {string} ref The ref for the link
+     * @param {type} query The object with the template values inside.
+     * @returns
+     */
+    public LoadLinkWithQuery<QueryType>(ref: string, query: QueryType): Promise<HalEndpointClient> {
+        if (this.HasLink(ref)) {
+            return HalEndpointClient.Load(this.GetQueryLink(this.GetLink(ref), query), this.fetcher);
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    /**
      * Load a new link, this will return a new HalEndpointClient for the results
      * of that request. You can keep using the client that you called this function
      * on to keep making requests if needed. The ref must exist before you can call
@@ -291,7 +320,29 @@ export class HalEndpointClient {
      */
     public LoadLinkWithBody<BodyType>(ref: string, data: BodyType): Promise<HalEndpointClient> {
         if (this.HasLink(ref)) {
-            return HalEndpointClient.Load(this.GetLink(ref), this.fetcher, JSON.stringify(data), HalEndpointClient.jsonMimeType);
+            return HalEndpointClient.Load(this.GetLink(ref), this.fetcher, {
+                reqBody: JSON.stringify(data),
+                contentType: HalEndpointClient.jsonMimeType
+            });
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    /**
+     * Load a link that uses a templated query and has body data. The template args are provided by the query argument.
+     * @param {string} ref The ref for the link
+     * @param {type} query The object with the template values inside.
+     * @param {type} data - The data to send as the body of the request
+     * @returns
+     */
+    public LoadLinkWithQueryAndBody<QueryType, BodyType>(ref: string, query: QueryType, data: BodyType): Promise<HalEndpointClient> {
+        if (this.HasLink(ref)) {
+            return HalEndpointClient.Load(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, {
+                reqBody: JSON.stringify(data),
+                contentType: HalEndpointClient.jsonMimeType
+            });
         }
         else {
             throw new Error('Cannot find ref "' + ref + '".');
@@ -306,8 +357,9 @@ export class HalEndpointClient {
      */
     public LoadLinkWithForm<FormType>(ref: string, data: FormType): Promise<HalEndpointClient> {
         if (this.HasLink(ref)) {
-            var body = this.jsonToFormData(data);
-            return HalEndpointClient.Load(this.GetLink(ref), this.fetcher, body);
+            return HalEndpointClient.Load(this.GetLink(ref), this.fetcher, {
+                reqBody: this.jsonToFormData(data)
+            });
         }
         else {
             throw new Error('Cannot find ref "' + ref + '".');
@@ -323,8 +375,9 @@ export class HalEndpointClient {
      */
     public LoadLinkWithQueryAndForm<QueryType, FormType>(ref: string, query: QueryType, data: FormType): Promise<HalEndpointClient> {
         if (this.HasLink(ref)) {
-            var body = this.jsonToFormData(data);
-            return HalEndpointClient.Load(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, body);
+            return HalEndpointClient.Load(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, {
+                reqBody: this.jsonToFormData(data)
+            });
         }
         else {
             throw new Error('Cannot find ref "' + ref + '".');
@@ -355,37 +408,6 @@ export class HalEndpointClient {
             }
         }
         return form_data;
-    }
-
-    /**
-     * Load a link that uses a template query. The template args are provided by the query argument.
-     * @param {string} ref The ref for the link
-     * @param {type} query The object with the template values inside.
-     * @returns
-     */
-    public LoadLinkWithQuery<QueryType>(ref: string, query: QueryType): Promise<HalEndpointClient> {
-        if (this.HasLink(ref)) {
-            return HalEndpointClient.Load(this.GetQueryLink(this.GetLink(ref), query), this.fetcher);
-        }
-        else {
-            throw new Error('Cannot find ref "' + ref + '".');
-        }
-    }
-
-    /**
-     * Load a link that uses a templated query and has body data. The template args are provided by the query argument.
-     * @param {string} ref The ref for the link
-     * @param {type} query The object with the template values inside.
-     * @param {type} data - The data to send as the body of the request
-     * @returns
-     */
-    public LoadLinkWithQueryAndBody<QueryType, BodyType>(ref: string, query: QueryType, data: BodyType): Promise<HalEndpointClient> {
-        if (this.HasLink(ref)) {
-            return HalEndpointClient.Load(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, JSON.stringify(data), HalEndpointClient.jsonMimeType);
-        }
-        else {
-            throw new Error('Cannot find ref "' + ref + '".');
-        }
     }
 
     /**
