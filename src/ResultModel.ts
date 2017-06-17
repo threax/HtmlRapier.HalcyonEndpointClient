@@ -90,4 +90,13 @@ export class ResultModel<DataType, ResultType extends HypermediaResult<DataType>
     public getSrc(): string {
         return this.model.getSrc();
     }
+
+    /**
+     * Set the prototype object to use when getting data.
+     * When the new object is created it will use this as
+     * its prototype.
+     */
+    public setPrototype(proto: DataType): void {
+        this.model.setPrototype(proto);
+    }
 }

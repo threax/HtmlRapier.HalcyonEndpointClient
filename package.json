@@ -1,8 +1,11 @@
 {
   "name": "htmlrapier.halcyon",
-  "version": "5.0.1",
+  "version": "6.0.0",
   "private": false,
   "dependencies": {
-    "htmlrapier": ">=3.3.1"
+    "htmlrapier": ">=7.0.0"
+  },
+  "scripts": {
+    "yarn-install": "yarn install --flat"
   }
 }
