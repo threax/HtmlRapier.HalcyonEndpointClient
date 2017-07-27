@@ -1,5 +1,5 @@
 ﻿import { Fetcher, Response } from 'hr.fetcher';
-import { ValidationError } from 'hr.error';
+import { FormErrors } from 'hr.error';
 import { Uri } from 'hr.uri';
 
 export { Fetcher, Response };
@@ -84,7 +84,7 @@ interface ServerError {
     message: string
 }
 
-export class HalError implements ValidationError {
+export class HalError implements FormErrors {
     private errorData: ServerError;
     private statusCode: number;
     public name;
@@ -124,6 +124,18 @@ export class HalError implements ValidationError {
 
     getStatusCode() {
         return this.statusCode;
+    }
+
+    addKey(baseName: string, key: string): string {
+        if(baseName !== ""){
+            //Make key 1st letter uppercase to match error from server
+            return baseName + "." + key[0].toUpperCase() + key.substr(1);
+        }
+        return key;
+    }
+
+    addIndex(baseName: string, key: string, index: string | number): string {
+        return baseName + key + '[' + index + ']';;
     }
 }
 
