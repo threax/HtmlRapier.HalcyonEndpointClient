@@ -540,7 +540,12 @@ export class HalEndpointClient {
             if (value && value.constructor === {}.constructor) {
                 // This is a JSON, we now need to recurse!
                 this.jsonToFormData(value, form_data, constructedKey);
-            } else {
+            }
+            else if (value && value.constructor === Blob && (<any>value).fileName) {
+                //With ie you have to use blobs for files, this allows us to detect that a fileName property was added to a blob and makes us use that as the third argument to append
+                form_data.append(constructedKey, <any>value, (<any>value).fileName);
+            }
+            else {
                 form_data.append(constructedKey, <any>value);
             }
         }
