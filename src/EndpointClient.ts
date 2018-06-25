@@ -545,6 +545,11 @@ export class HalEndpointClient {
                 //With ie you have to use blobs for files, this allows us to detect that a fileName property was added to a blob and makes us use that as the third argument to append
                 form_data.append(constructedKey, <any>value, (<any>value).fileName);
             }
+            else if (Array.isArray(value)) {
+                for (var i = 0; i < value.length; ++i) {
+                    this.jsonToFormData(value[i], form_data, constructedKey + '[' + i + ']');
+                }
+            }
             else {
                 form_data.append(constructedKey, <any>value);
             }
