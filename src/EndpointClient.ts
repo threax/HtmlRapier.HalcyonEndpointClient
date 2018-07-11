@@ -4,6 +4,14 @@ import { Uri } from 'hr.uri';
 
 export { Fetcher, Response };
 
+//Data Modes
+const MODE_NoData = null;
+const MODE_Query = "query";
+const MODE_Body = "body";
+const MODE_Form = "form";
+const MODE_QueryAndBody = "queryandbody";
+const MODE_QueryAndForm = "queryandform";
+
 /**
  * This interface strongly types the hal endpoint data.
  * @param {any} links
@@ -20,6 +28,7 @@ interface HalData {
 export interface HalLink {
     href: string,
     method: string
+    datamode?: string;
 }
 
 /**
@@ -322,6 +331,54 @@ export class HalEndpointClient {
     }
 
     /**
+     * Load a link that uses the data mode to send its query.
+     * @param {string} ref The ref for the link
+     * @param {type} data The object with the template values inside.
+     * @returns
+     */
+    public LoadLinkWithData<DataType>(ref: string, data: DataType): Promise<HalEndpointClient> {
+        var link = this.GetLink(ref);
+        if (link) {
+            switch(link.datamode){
+                case MODE_Query:
+                    return this.LoadLinkWithQuery(ref, data);
+                case MODE_Body:
+                    return this.LoadLinkWithBody(ref, data);
+                case MODE_Form:
+                    return this.LoadLinkWithForm(ref, data);
+                default:
+                    throw new Error("Cannot use data mode " + link.datamode + " with rel " + ref);
+            }
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    /**
+     * Load a link that uses the data mode to send its query.
+     * @param {string} ref The ref for the link
+     * @param {type} data The object with the template values inside.
+     * @returns
+     */
+    public LoadLinkWithQueryAndData<QueryType, DataType>(ref: string, query: QueryType, data: DataType): Promise<HalEndpointClient> {
+        var link = this.GetLink(ref);
+        if (link) {
+            switch(link.datamode){
+                case MODE_QueryAndBody:
+                    return this.LoadLinkWithQueryAndBody(ref, query, data);
+                case MODE_QueryAndForm:
+                    return this.LoadLinkWithQueryAndForm(ref, query, data);
+                default:
+                    throw new Error("Cannot use data mode " + link.datamode + " with rel " + ref);
+            }
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    /**
      * Load a link that uses a template query. The template args are provided by the query argument.
      * @param {string} ref The ref for the link
      * @param {type} query The object with the template values inside.
@@ -425,6 +482,54 @@ export class HalEndpointClient {
     public LoadRawLink(ref: string): Promise<Response> {
         if (this.HasLink(ref)) {
             return HalEndpointClient.LoadRaw(this.GetLink(ref), this.fetcher);
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    /**
+     * Load a link that uses the data mode to send its query.
+     * @param {string} ref The ref for the link
+     * @param {type} data The object with the template values inside.
+     * @returns
+     */
+    public LoadRawLinkWithData<DataType>(ref: string, data: DataType): Promise<Response> {
+        var link = this.GetLink(ref);
+        if (link) {
+            switch(link.datamode){
+                case MODE_Query:
+                    return this.LoadRawLinkWithQuery(ref, data);
+                case MODE_Body:
+                    return this.LoadRawLinkWithBody(ref, data);
+                case MODE_Form:
+                    return this.LoadRawLinkWithForm(ref, data);
+                default:
+                    throw new Error("Cannot use data mode " + link.datamode + " with rel " + ref);
+            }
+        }
+        else {
+            throw new Error('Cannot find ref "' + ref + '".');
+        }
+    }
+
+    /**
+     * Load a link that uses the data mode to send its query.
+     * @param {string} ref The ref for the link
+     * @param {type} data The object with the template values inside.
+     * @returns
+     */
+    public LoadRawLinkWithQueryAndData<QueryType, DataType>(ref: string, query: QueryType, data: DataType): Promise<Response> {
+        var link = this.GetLink(ref);
+        if (link) {
+            switch(link.datamode){
+                case MODE_QueryAndBody:
+                    return this.LoadRawLinkWithQueryAndBody(ref, query, data);
+                case MODE_QueryAndForm:
+                    return this.LoadRawLinkWithQueryAndForm(ref, query, data);
+                default:
+                    throw new Error("Cannot use data mode " + link.datamode + " with rel " + ref);
+            }
         }
         else {
             throw new Error('Cannot find ref "' + ref + '".');
