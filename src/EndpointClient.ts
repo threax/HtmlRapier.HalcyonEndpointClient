@@ -29,6 +29,7 @@ export interface HalLink {
     href: string,
     method: string
     datamode?: string;
+    requestdata?: any;
 }
 
 /**
@@ -323,6 +324,10 @@ export class HalEndpointClient {
      */
     public LoadLink(ref: string): Promise<HalEndpointClient> {
         if (this.HasLink(ref)) {
+            var link = this.GetLink(ref);
+            if (link.requestdata) {
+                return this.LoadLinkWithData(ref, link.requestdata);
+            }
             return HalEndpointClient.Load(this.GetLink(ref), this.fetcher);
         }
         else {
@@ -481,6 +486,10 @@ export class HalEndpointClient {
      */
     public LoadRawLink(ref: string): Promise<Response> {
         if (this.HasLink(ref)) {
+            var link = this.GetLink(ref);
+            if (link.requestdata) {
+                return this.LoadRawLinkWithData(ref, link.requestdata);
+            }
             return HalEndpointClient.LoadRaw(this.GetLink(ref), this.fetcher);
         }
         else {
