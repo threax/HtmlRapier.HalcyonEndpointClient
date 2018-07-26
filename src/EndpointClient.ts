@@ -9,8 +9,6 @@ const MODE_NoData = null;
 const MODE_Query = "query";
 const MODE_Body = "body";
 const MODE_Form = "form";
-const MODE_QueryAndBody = "queryandbody";
-const MODE_QueryAndForm = "queryandform";
 
 /**
  * This interface strongly types the hal endpoint data.
@@ -360,29 +358,6 @@ export class HalEndpointClient {
     }
 
     /**
-     * Load a link that uses the data mode to send its query.
-     * @param {string} ref The ref for the link
-     * @param {type} data The object with the template values inside.
-     * @returns
-     */
-    public LoadLinkWithQueryAndData<QueryType, DataType>(ref: string, query: QueryType, data: DataType): Promise<HalEndpointClient> {
-        var link = this.GetLink(ref);
-        if (link) {
-            switch(link.datamode){
-                case MODE_QueryAndBody:
-                    return this.LoadLinkWithQueryAndBody(ref, query, data);
-                case MODE_QueryAndForm:
-                    return this.LoadLinkWithQueryAndForm(ref, query, data);
-                default:
-                    throw new Error("Cannot use data mode " + link.datamode + " with rel " + ref);
-            }
-        }
-        else {
-            throw new Error('Cannot find ref "' + ref + '".');
-        }
-    }
-
-    /**
      * Load a link that uses a template query. The template args are provided by the query argument.
      * @param {string} ref The ref for the link
      * @param {type} query The object with the template values inside.
@@ -419,25 +394,6 @@ export class HalEndpointClient {
     }
 
     /**
-     * Load a link that uses a templated query and has body data. The template args are provided by the query argument.
-     * @param {string} ref The ref for the link
-     * @param {type} query The object with the template values inside.
-     * @param {type} data - The data to send as the body of the request
-     * @returns
-     */
-    public LoadLinkWithQueryAndBody<QueryType, BodyType>(ref: string, query: QueryType, data: BodyType): Promise<HalEndpointClient> {
-        if (this.HasLink(ref)) {
-            return HalEndpointClient.Load(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, {
-                reqBody: JSON.stringify(data),
-                contentType: HalEndpointClient.jsonMimeType
-            });
-        }
-        else {
-            throw new Error('Cannot find ref "' + ref + '".');
-        }
-    }
-
-    /**
      * Load a new link with files to upload.
      * @param ref - The link reference to visit.
      * @param file - The file to upload, either a single file or an array of multiple files.
@@ -446,24 +402,6 @@ export class HalEndpointClient {
     public LoadLinkWithForm<FormType>(ref: string, data: FormType): Promise<HalEndpointClient> {
         if (this.HasLink(ref)) {
             return HalEndpointClient.Load(this.GetLink(ref), this.fetcher, {
-                reqBody: this.jsonToFormData(data)
-            });
-        }
-        else {
-            throw new Error('Cannot find ref "' + ref + '".');
-        }
-    }
-
-    /**
-     * Load a new link with files to upload and a query string.
-     * @param ref - The link reference to visit.
-     * @param file - The file to upload, either a single file or an array of multiple files.
-     * @param query - The query object.
-     * @returns
-     */
-    public LoadLinkWithQueryAndForm<QueryType, FormType>(ref: string, query: QueryType, data: FormType): Promise<HalEndpointClient> {
-        if (this.HasLink(ref)) {
-            return HalEndpointClient.Load(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, {
                 reqBody: this.jsonToFormData(data)
             });
         }
@@ -522,29 +460,6 @@ export class HalEndpointClient {
     }
 
     /**
-     * Load a link that uses the data mode to send its query.
-     * @param {string} ref The ref for the link
-     * @param {type} data The object with the template values inside.
-     * @returns
-     */
-    public LoadRawLinkWithQueryAndData<QueryType, DataType>(ref: string, query: QueryType, data: DataType): Promise<Response> {
-        var link = this.GetLink(ref);
-        if (link) {
-            switch(link.datamode){
-                case MODE_QueryAndBody:
-                    return this.LoadRawLinkWithQueryAndBody(ref, query, data);
-                case MODE_QueryAndForm:
-                    return this.LoadRawLinkWithQueryAndForm(ref, query, data);
-                default:
-                    throw new Error("Cannot use data mode " + link.datamode + " with rel " + ref);
-            }
-        }
-        else {
-            throw new Error('Cannot find ref "' + ref + '".');
-        }
-    }
-
-    /**
      * Load a link that uses a template query. The template args are provided by the query argument.
      * @param {string} ref The ref for the link
      * @param {type} query The object with the template values inside.
@@ -581,25 +496,6 @@ export class HalEndpointClient {
     }
 
     /**
-     * Load a link that uses a templated query and has body data. The template args are provided by the query argument.
-     * @param {string} ref The ref for the link
-     * @param {type} query The object with the template values inside.
-     * @param {type} data - The data to send as the body of the request
-     * @returns
-     */
-    public LoadRawLinkWithQueryAndBody<QueryType, BodyType>(ref: string, query: QueryType, data: BodyType): Promise<Response> {
-        if (this.HasLink(ref)) {
-            return HalEndpointClient.LoadRaw(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, {
-                reqBody: JSON.stringify(data),
-                contentType: HalEndpointClient.jsonMimeType
-            });
-        }
-        else {
-            throw new Error('Cannot find ref "' + ref + '".');
-        }
-    }
-
-    /**
      * Load a new link with files to upload.
      * @param ref - The link reference to visit.
      * @param file - The file to upload, either a single file or an array of multiple files.
@@ -608,24 +504,6 @@ export class HalEndpointClient {
     public LoadRawLinkWithForm<FormType>(ref: string, data: FormType): Promise<Response> {
         if (this.HasLink(ref)) {
             return HalEndpointClient.LoadRaw(this.GetLink(ref), this.fetcher, {
-                reqBody: this.jsonToFormData(data)
-            });
-        }
-        else {
-            throw new Error('Cannot find ref "' + ref + '".');
-        }
-    }
-
-    /**
-     * Load a new link with files to upload and a query string.
-     * @param ref - The link reference to visit.
-     * @param file - The file to upload, either a single file or an array of multiple files.
-     * @param query - The query object.
-     * @returns
-     */
-    public LoadRawLinkWithQueryAndForm<QueryType, FormType>(ref: string, query: QueryType, data: FormType): Promise<Response> {
-        if (this.HasLink(ref)) {
-            return HalEndpointClient.LoadRaw(this.GetQueryLink(this.GetLink(ref), query), this.fetcher, {
                 reqBody: this.jsonToFormData(data)
             });
         }
