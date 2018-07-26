@@ -17,8 +17,8 @@ const MODE_QueryAndForm = "queryandform";
  * @param {any} links
  */
 interface HalData {
-    _links: any,
-    _embedded: any
+    _links: any;
+    _embedded: any;
 }
 
 /**
@@ -26,8 +26,8 @@ interface HalData {
  * @param {any} embeds
  */
 export interface HalLink {
-    href: string,
-    method: string
+    href: string;
+    method: string;
     datamode?: string;
     requestdata?: any;
 }
@@ -37,18 +37,17 @@ export interface HalLink {
  * @param {any} embeds
  */
 export interface HalLinkInfo {
-    href: string,
-    method: string,
-    rel: string
+    href: string;
+    method: string;
+    rel: string;
 }
 
 /**
  * Documentation object for a hal link. Can be reused for any documentation lookup.
  */
 export interface HalEndpointDoc {
-    requestSchema: any,
-    responseSchema: any,
-    querySchema: any,
+    requestSchema: any;
+    responseSchema: any;
 }
 
 /**
@@ -58,12 +57,12 @@ export interface FileInfo {
     /**
      * The file name to claim for the file
      */
-    fileName: string,
+    fileName: string;
 
     /**
      * The actual file content as a blob.
      */
-    data: Blob
+    data: Blob;
 }
 
 export class Embed {
@@ -90,8 +89,8 @@ export class Embed {
 }
 
 interface ServerError {
-    errors: any,
-    message: string
+    errors: any;
+    message: string;
 }
 
 export class HalError implements FormErrors {
