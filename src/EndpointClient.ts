@@ -551,8 +551,13 @@ export class HalEndpointClient {
     /**
      * Load the documentation for a link.
      */
-    public LoadLinkDoc(ref: string): Promise<HalEndpointClient> {
-        return this.LoadLink(ref + ".Docs");
+    public LoadLinkDoc(ref: string, data?: any): Promise<HalEndpointClient> {
+        if (data === undefined) {
+            return this.LoadLink(ref + ".Docs");
+        }
+        else {
+            return this.LoadLinkWithData(ref + ".Docs", data);
+        }
     }
 
     /**
