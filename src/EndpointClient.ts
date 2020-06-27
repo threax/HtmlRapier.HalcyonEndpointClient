@@ -135,8 +135,7 @@ export class HalError implements FormErrors {
 
     addKey(baseName: string, key: string): string {
         if(baseName !== ""){
-            //Make key 1st letter uppercase to match error from server
-            return baseName + "." + key[0].toUpperCase() + key.substr(1);
+            return baseName + "." + key;
         }
         return key;
     }

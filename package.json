@@ -1,11 +1,12 @@
 {
   "name": "htmlrapier.halcyon",
-  "version": "7.1.0",
+  "version": "8.0.0",
   "private": false,
   "dependencies": {
     "htmlrapier": ">=10.0.2"
   },
-  "scripts": {
-    "yarn-install": "yarn install --flat"
-  }
+  "files": [
+    "src/**/*",
+    "tsimport.json"
+  ]
 }
