@@ -1,6 +1,6 @@
-﻿import { Fetcher, Response } from 'hr.fetcher';
-import { FormErrors } from 'hr.error';
-import { Uri } from 'hr.uri';
+﻿import { Fetcher, Response } from 'htmlrapier/src/fetcher';
+import { FormErrors } from 'htmlrapier/src/error';
+import { Uri } from 'htmlrapier/src/uri';
 
 export { Fetcher, Response };
 
