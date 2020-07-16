@@ -1,9 +1,9 @@
 {
   "name": "htmlrapier.halcyon",
-  "version": "8.0.0",
+  "version": "9.0.0",
   "private": false,
   "dependencies": {
-    "htmlrapier": ">=10.0.2"
+    "htmlrapier": ">=24.0.0"
   },
   "files": [
     "src/**/*",
