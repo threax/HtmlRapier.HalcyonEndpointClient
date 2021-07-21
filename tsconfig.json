@@ -4,18 +4,17 @@
     "noEmitOnError": true,
     "removeComments": false,
     "sourceMap": true,
-    "target": "es5",
+    "noEmitHelpers": true,
+    "alwaysStrict": true,
+    "target": "es2020",
     "outDir": "obj/tsc",
-    "module": "amd",
+    "module": "ES2020",
     "baseUrl": ".",
-    "paths": {
-      "hr.*": [
-        "node_modules/HtmlRapier/src/*"
-      ],
-      "hr.halcyon.*": [
-        "src/*"
-      ]
-    }
+    "moduleResolution": "node",
+    "lib": [
+      "DOM",
+      "ES2020"
+    ]
   },
   "exclude": [
     "node_modules",

@@ -1,6 +1,6 @@
-﻿import { Fetcher } from 'hr.fetcher';
-import { FormErrors } from 'hr.error';
-import { Uri } from 'hr.uri';
+﻿import { Fetcher } from 'htmlrapier/src/fetcher';
+import { FormErrors } from 'htmlrapier/src/error';
+import { Uri } from 'htmlrapier/src/uri';
 
 //Data Modes
 const MODE_NoData = null;

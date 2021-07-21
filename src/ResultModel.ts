@@ -1,7 +1,7 @@
-import * as models from 'hr.models';
-import * as components from 'hr.components';
-import * as iter from 'hr.iterable';
-import * as typeId from 'hr.typeidentifiers';
+import * as models from 'htmlrapier/src/models';
+import * as components from 'htmlrapier/src/components';
+import * as iter from 'htmlrapier/src/iterable';
+import * as typeId from 'htmlrapier/src/typeidentifiers';
 
 /**
  * This interface matches the auto generated client code for halcyon results.
