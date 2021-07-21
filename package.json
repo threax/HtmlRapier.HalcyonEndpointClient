@@ -1,6 +1,6 @@
 {
   "name": "htmlrapier.halcyon",
-  "version": "10.0.0-pre.0",
+  "version": "10.0.0-pre.1",
   "private": false,
   "dependencies": {
     "htmlrapier": ">=25.0.0-pre.0"
