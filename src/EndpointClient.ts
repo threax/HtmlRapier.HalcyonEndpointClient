@@ -1,8 +1,6 @@
-﻿import { Fetcher, Response } from 'hr.fetcher';
+﻿import { Fetcher } from 'hr.fetcher';
 import { FormErrors } from 'hr.error';
 import { Uri } from 'hr.uri';
-
-export { Fetcher, Response };
 
 //Data Modes
 const MODE_NoData = null;
